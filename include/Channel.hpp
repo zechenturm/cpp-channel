@@ -54,7 +54,7 @@ public:
         if (isClosed && queue.empty()) throw ClosedException{};
         auto front = queue.pop();
         cv.notify_one();
-        return std::move(front);
+        return front;
     }
 
     void close()
