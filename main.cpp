@@ -5,7 +5,9 @@
 int main() {
     std::cout << "Hello, World!" << std::endl;
 
-    Channel<int> c{10};
+    constexpr auto channelSize = 10;
+
+    Channel<int, channelSize> c{};
 
     std::mutex m;
 
@@ -20,8 +22,8 @@ int main() {
                 m.unlock();
             }
         }
-        catch (Channel<int>::ClosedException& ce) {
-            std::cout << "channel closed";
+        catch (Channel<int, channelSize>::ClosedException& ce) {
+            std::cout << "channel closed\n";
         }
     }};
 

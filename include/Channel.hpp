@@ -10,24 +10,24 @@
 #include <condition_variable>
 #include <iostream>
 
-template <typename T>
+#include "RingBuffer.hpp"
+
+template <typename T, size_t Size>
 class Channel
 {
     using lock = std::unique_lock<std::mutex>;
-    std::queue<T> queue;
+    RingBuffer<T, Size> queue;
     std::mutex m;
     std::condition_variable cv;
-    const size_t maxSize;
-    bool isClosed;
+    bool isClosed = false;
 
 public:
     ~Channel() = default;
-    Channel(const Channel<T>&) = delete;
-    Channel& operator=(const Channel<T>&) = delete;
-    Channel(const Channel<T>&&) = delete;
-    Channel& operator=(const Channel<T>&&) = delete;
-
-    explicit Channel(size_t size): maxSize(size), isClosed(false) {}
+    Channel() = default;
+    Channel(const Channel<T, Size>&) = delete;
+    Channel& operator=(const Channel<T, Size>&) = delete;
+    Channel(const Channel<T, Size>&&) = delete;
+    Channel& operator=(const Channel<T, Size>&&) = delete;
 
     struct ClosedException: public std::exception
     {
@@ -40,7 +40,7 @@ public:
     void send(T data)
     {
         lock l(m);
-        cv.wait(l, [this](){return queue.size() < maxSize || isClosed;});
+        cv.wait(l, [this](){return !queue.full() || isClosed;});
         if (isClosed) throw ClosedException{};
         queue.push(data);
         cv.notify_one();
@@ -49,10 +49,9 @@ public:
     T receive()
     {
         lock l(m);
-        cv.wait(l, [this](){return queue.size() > 0 || isClosed;});
-        if (isClosed && queue.empty()) throw ClosedException{};
-        auto front = queue.front();
-        queue.pop();
+        cv.wait(l, [this](){return !queue.empty() || isClosed;});
+        if (isClosed && queue.empty()) { std::cout << "buf size: " << queue.size() << '\n'; throw ClosedException{}; }
+        auto front = queue.pop();
         cv.notify_one();
         return  front;
     }
