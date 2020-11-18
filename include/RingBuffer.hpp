@@ -38,7 +38,7 @@ public:
         return size() == Size;
     }
 
-    constexpr void push(T element) noexcept
+    constexpr void push(T& element) noexcept
     {
         if(writeHead == Size)
         {
@@ -48,6 +48,16 @@ public:
         data[writeHead++] = element;
     }
 
+    constexpr void push(T&& element) noexcept
+    {
+        if(writeHead == Size)
+        {
+            writeHead = 0;
+            overflow = true;
+        }
+        data[writeHead++] = std::move(element);
+    }
+
     constexpr T pop() noexcept
     {
         if(readHead == Size)
@@ -55,7 +65,7 @@ public:
             readHead = 0;
             overflow = false;
         }
-        return data[readHead++];
+        return std::move(data[readHead++]);
     }
 };
 

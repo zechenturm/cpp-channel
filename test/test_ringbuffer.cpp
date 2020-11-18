@@ -82,3 +82,11 @@ TEST(ringbuffer, testOverflow)
     buf.pop();
     ASSERT_TRUE(buf.empty());
 }
+
+TEST(ringbuffer, ringbuffers_work_with_move_only_types)
+{
+    auto buf = RingBuffer<std::unique_ptr<int>, 1>{};
+    buf.push(std::make_unique<int>(10));
+    auto p = buf.pop();
+
+}
