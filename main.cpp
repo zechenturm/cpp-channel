@@ -10,8 +10,9 @@ int main() {
     Channel<int, channelSize> c{};
     Channel<std::unique_ptr<int>, channelSize> c2{};
 
-    c2.send(std::make_unique<int>(10));
-    auto p = c2.receive();
+    c2 << std::make_unique<int>(10);
+    std::unique_ptr<int> p;
+    c2 >> p;
 
     std::mutex m;
 
@@ -20,7 +21,7 @@ int main() {
         try {
             while (true)
             {
-                received = c.receive();
+                c >> received;
                 m.lock();
                 std::cout << "received: " << received << '\n';
                 m.unlock();
@@ -33,7 +34,7 @@ int main() {
 
     for (auto i = 0; i < 11; ++i)
     {
-        c.send(i);
+        c << i;
         m.lock();
         std::cout << "sent " << i << '\n';
         m.unlock();

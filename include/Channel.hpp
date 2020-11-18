@@ -69,6 +69,19 @@ public:
         lock l(m);
         return isClosed;
     }
+
+    template<typename D>
+    Channel& operator<<(D&& data)
+    {
+        send(std::forward<D>(data));
+        return *this;
+    }
+
+    Channel& operator>>(T& data)
+    {
+        data = std::move(receive());
+        return *this;
+    }
 };
 
 #endif //CHANNEL_CHANNEL_HPP
