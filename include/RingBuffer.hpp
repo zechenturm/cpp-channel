@@ -24,7 +24,6 @@ public:
 
     constexpr size_t size() const noexcept
     {
-        std::cout << "read: " << readHead << " write: " << writeHead << '\n';
         if(overflow) return (Size - readHead) + writeHead;
         else return writeHead - readHead;
     }
