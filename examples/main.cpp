@@ -8,11 +8,6 @@ int main() {
     constexpr auto channelSize = 10;
 
     Channel<int, channelSize> c{};
-    Channel<std::unique_ptr<int>, channelSize> c2{};
-
-    c2 << std::make_unique<int>(10);
-    std::unique_ptr<int> p;
-    c2 >> p;
 
     std::mutex m;
 
