@@ -37,12 +37,13 @@ public:
         }
     };
 
-    void send(T data)
+    template<typename D>
+    void send(D&& data)
     {
         lock l(m);
         cv.wait(l, [this](){return !queue.full() || isClosed;});
         if (isClosed) throw ClosedException{};
-        queue.push(data);
+        queue.push(std::forward<D>(data));
         cv.notify_one();
     }
 
@@ -50,10 +51,10 @@ public:
     {
         lock l(m);
         cv.wait(l, [this](){return !queue.empty() || isClosed;});
-        if (isClosed && queue.empty()) { std::cout << "buf size: " << queue.size() << '\n'; throw ClosedException{}; }
+        if (isClosed && queue.empty()) throw ClosedException{};
         auto front = queue.pop();
         cv.notify_one();
-        return  front;
+        return std::move(front);
     }
 
     void close()
