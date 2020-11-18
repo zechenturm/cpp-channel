@@ -38,24 +38,15 @@ public:
         return size() == Size;
     }
 
-    constexpr void push(T& element) noexcept
+    template<typename E>
+    constexpr void push(E&& element) noexcept
     {
         if(writeHead == Size)
         {
             writeHead = 0;
             overflow = true;
         }
-        data[writeHead++] = element;
-    }
-
-    constexpr void push(T&& element) noexcept
-    {
-        if(writeHead == Size)
-        {
-            writeHead = 0;
-            overflow = true;
-        }
-        data[writeHead++] = std::move(element);
+        data[writeHead++] = std::forward<E>(element);
     }
 
     constexpr T pop() noexcept
