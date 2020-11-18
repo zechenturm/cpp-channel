@@ -65,3 +65,20 @@ TEST(ringbuffer, a_buffer_is_full_once_the_number_of_elements_it_holds_reaches_i
     buf.push(1);
     ASSERT_TRUE(buf.full());
 }
+
+TEST(ringbuffer, testOverflow)
+{
+    auto buf = RingBuffer<int, 3>{};
+    buf.push(1);
+    buf.push(2);
+    buf.pop();
+    buf.pop();
+    buf.push(3);
+    buf.push(4);
+    buf.push(5);
+    ASSERT_EQ(3, buf.size());
+    buf.pop();
+    buf.pop();
+    buf.pop();
+    ASSERT_TRUE(buf.empty());
+}

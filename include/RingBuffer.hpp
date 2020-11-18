@@ -14,6 +14,7 @@ class RingBuffer
 private:
     std::array<T, Size> data;
     size_t readHead = 0, writeHead = 0;
+    bool overflow = false;
 
 public:
     constexpr size_t capacity() const noexcept
@@ -23,7 +24,9 @@ public:
 
     constexpr size_t size() const noexcept
     {
-        return writeHead - readHead;
+        std::cout << "read: " << readHead << " write: " << writeHead << '\n';
+        if(overflow) return (Size - readHead) + writeHead;
+        else return writeHead - readHead;
     }
 
     constexpr bool empty() const noexcept
@@ -38,13 +41,21 @@ public:
 
     constexpr void push(T element) noexcept
     {
-        if(writeHead == Size) writeHead = 0;
+        if(writeHead == Size)
+        {
+            writeHead = 0;
+            overflow = true;
+        }
         data[writeHead++] = element;
     }
 
     constexpr T pop() noexcept
     {
-        if(readHead == Size) readHead = 0;
+        if(readHead == Size)
+        {
+            readHead = 0;
+            overflow = false;
+        }
         return data[readHead++];
     }
 };
